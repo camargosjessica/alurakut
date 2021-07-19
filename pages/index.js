@@ -28,17 +28,7 @@ function ProfileRelationsBox(propriedades) {
             {propriedades.title} ({propriedades.items.length})
           </h2>
           <ul>
-            {seguidores.map((itemAtual) => {
-            return (
-              <li key={itemAtual}>
-                <a href={`/users/${itemAtual}`} key={itemAtual}>
-                  <img src={`https://github.com/${itemAtual}.png`} />
-                  <img src={itemAtual.image} />
-                  <span>{itemAtual.title}</span>
-                </a>
-              </li>
-            )
-            })}
+            
           </ul>
       </ProfileRelationsBoxWrapper>
   )
@@ -46,11 +36,7 @@ function ProfileRelationsBox(propriedades) {
 
 export default function Home() {
   const githubUser = 'camargosjessica';
-  const [comunidades, setComunidades] = React.useState([{
-    id: '3',
-    title: 'Eu odeio acordar cedo',
-    image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg'
-  }]);
+  const [comunidades, setComunidades] = React.useState([]);
   const pessoasFavoritas = [ 
     'danditeoa', 
     'amandabrbz',
@@ -70,6 +56,29 @@ export default function Home() {
     .then(function(respostaCompleta) {
       setSeguidores(respostaCompleta);
     })
+
+    //API GraphQL
+    fetch('https://graphql.datocms.com/', {
+      method: 'POST',
+      headers: {
+        'Authorization': '769464cc4e2a665044f12d9b7e776d',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ "query": `query {
+        allCommunities {
+          id
+          title
+          imageUrl
+        }
+      }` })
+    })
+    .then((response) => response.json())
+    .then((respostaCompleta) => {
+      const comunidadesVindasDoDato = respostaCompleta.data.allCommunities;
+      setComunidades(comunidadesVindasDoDato)
+    })
+
   }, [])
 
   return (
@@ -145,8 +154,8 @@ export default function Home() {
             {comunidades.map((itemAtual) => {
             return (
               <li key={itemAtual.id}>
-                <a href={`/users/${itemAtual.title}`}>
-                  <img src={itemAtual.image} />
+                <a href={`/communities/${itemAtual.id}`}>
+                  <img src={itemAtual.imageUrl} />
                   <span>{itemAtual.title}</span>
                 </a>
               </li>
